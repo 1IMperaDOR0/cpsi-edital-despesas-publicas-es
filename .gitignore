@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Os CSVs oficiais sao grandes e nao devem ser versionados.
+src/data/*.csv
+!src/data/.gitkeep
+
+# Artefatos gerados pelo pipeline.
+data/processed/*
+!data/processed/.gitkeep
+data/reports/*
+!data/reports/.gitkeep
+
+*.log
+.DS_Store
+Thumbs.db

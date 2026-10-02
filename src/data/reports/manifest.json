@@ -1,0 +1,68 @@
+{
+  "pipeline_version": "0.2.0",
+  "generated_at_utc": "2026-10-02T22:27:00.429608+00:00",
+  "input_dir": "C:\\AllThings\\projects\\cpsi-edital-despesas-publicas-es\\src\\data",
+  "output_dir": "C:\\AllThings\\projects\\cpsi-edital-despesas-publicas-es\\src\\data\\processed",
+  "output_format": "csv.gz",
+  "chunksize": 50000,
+  "limit_rows_per_source": null,
+  "total_rows_processed": 1092158,
+  "year_mismatch_count": 0,
+  "sources": [
+    {
+      "source_file": "despesas_es_2024_completo_parte_01.csv",
+      "year": 2024,
+      "part": 1,
+      "rows_processed": 125283
+    },
+    {
+      "source_file": "despesas_es_2024_completo_parte_02.csv",
+      "year": 2024,
+      "part": 2,
+      "rows_processed": 125661
+    },
+    {
+      "source_file": "despesas_es_2024_completo_parte_03.csv",
+      "year": 2024,
+      "part": 3,
+      "rows_processed": 126090
+    },
+    {
+      "source_file": "despesas_es_2024_completo_parte_04.csv",
+      "year": 2024,
+      "part": 4,
+      "rows_processed": 128916
+    },
+    {
+      "source_file": "despesas_es_2025_completo_parte_01.csv",
+      "year": 2025,
+      "part": 1,
+      "rows_processed": 146463
+    },
+    {
+      "source_file": "despesas_es_2025_completo_parte_02.csv",
+      "year": 2025,
+      "part": 2,
+      "rows_processed": 146058
+    },
+    {
+      "source_file": "despesas_es_2025_completo_parte_03.csv",
+      "year": 2025,
+      "part": 3,
+      "rows_processed": 146177
+    },
+    {
+      "source_file": "despesas_es_2025_completo_parte_04.csv",
+      "year": 2025,
+      "part": 4,
+      "rows_processed": 147510
+    }
+  ],
+  "quality_report": "C:\\AllThings\\projects\\cpsi-edital-despesas-publicas-es\\src\\data\\reports\\quality_summary.csv",
+  "design_notes": [
+    "A camada analitica exclui CPF/CNPJ e dados bancarios.",
+    "Nenhuma linha e removida silenciosamente.",
+    "Categorias de negocio nao sao corrigidas sem evidencia.",
+    "Metricas financeiras derivadas ainda nao fazem parte do pipeline."
+  ]
+}
