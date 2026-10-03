@@ -245,3 +245,197 @@ def traceability_coverage_chart(quality_summary: pd.DataFrame) -> go.Figure:
         showlegend=False,
     )
     return _style_figure(figure, height=360)
+
+
+def beneficiary_pareto_chart(concentration: pd.DataFrame, top_n: int = 15) -> go.Figure:
+    """Pareto: valor pago por favorecido e participação acumulada."""
+    from plotly.subplots import make_subplots
+
+    data = concentration.head(top_n).copy()
+    data = data.sort_values("ValorPagoPositivo", ascending=False)
+    data["Rotulo"] = data["Favorecido"].map(
+        lambda value: shorten(str(value), width=36, placeholder="…")
+    )
+
+    figure = make_subplots(specs=[[{"secondary_y": True}]])
+    figure.add_trace(
+        go.Bar(
+            x=data["Rotulo"],
+            y=data["ValorPagoPositivo"],
+            name="Valor pago",
+            customdata=data[["Favorecido", "ParticipacaoPct"]],
+            hovertemplate=(
+                "%{customdata[0]}<br>"
+                "Valor pago: R$ %{y:,.2f}<br>"
+                "Participação: %{customdata[1]:.2f}%<extra></extra>"
+            ),
+        ),
+        secondary_y=False,
+    )
+    figure.add_trace(
+        go.Scatter(
+            x=data["Rotulo"],
+            y=data["ParticipacaoAcumuladaPct"],
+            name="Participação acumulada",
+            mode="lines+markers",
+            hovertemplate="Acumulado: %{y:.2f}%<extra></extra>",
+        ),
+        secondary_y=True,
+    )
+
+    figure.update_xaxes(title_text="Favorecido", tickangle=-35)
+    figure.update_yaxes(
+        title_text="Valor pago (R$)",
+        tickprefix="R$ ",
+        tickformat="~s",
+        secondary_y=False,
+    )
+    figure.update_yaxes(
+        title_text="Participação acumulada (%)",
+        range=[0, 100],
+        ticksuffix="%",
+        secondary_y=True,
+    )
+    figure.update_layout(
+        hovermode="x unified",
+        legend_title_text="",
+    )
+    return _style_figure(figure, height=500, top_margin=78, legend_y=1.08)
+
+
+def payment_boxplot_chart(statistics: pd.DataFrame) -> go.Figure:
+    """Boxplot pré-calculado de ValorPago positivo, comparando cada ano separadamente."""
+    data = (
+        statistics.loc[statistics["Escopo"] != "Todos"]
+        .copy()
+        .sort_values("Ano")
+    )
+    data["AnoLabel"] = data["Ano"].astype("Int64").astype("string")
+
+    # Em boxplots com quartis pré-calculados, o eixo categórico precisa ser
+    # informado explicitamente. Sem `x`, o Plotly coloca todas as caixas na
+    # mesma posição (categoria 0), sobrepondo 2024 e 2025.
+    customdata = [
+        [int(row["OutliersSuperiores"]), float(row["ProbOutlierSuperior"]) * 100]
+        for _, row in data.iterrows()
+    ]
+
+    figure = go.Figure(
+        go.Box(
+            x=data["AnoLabel"].tolist(),
+            q1=data["Q1"].tolist(),
+            median=data["Mediana"].tolist(),
+            q3=data["Q3"].tolist(),
+            lowerfence=data["LimiteInferiorBoxplot"].tolist(),
+            upperfence=data["LimiteSuperiorBoxplot"].tolist(),
+            mean=data["Media"].tolist(),
+            sd=data["DesvioPadrao"].tolist(),
+            boxpoints=False,
+            customdata=customdata,
+            hovertemplate=(
+                "Ano: %{x}<br>"
+                "Q1: R$ %{q1:,.2f}<br>"
+                "Mediana: R$ %{median:,.2f}<br>"
+                "Q3: R$ %{q3:,.2f}<br>"
+                "Limite superior (1,5×IQR): R$ %{upperfence:,.2f}<br>"
+                "Outliers superiores: %{customdata[0]:,} (%{customdata[1]:.2f}%)"
+                "<extra></extra>"
+            ),
+            name="ValorPago",
+        )
+    )
+
+    figure.update_xaxes(
+        title_text="Ano",
+        type="category",
+        categoryorder="array",
+        categoryarray=data["AnoLabel"].tolist(),
+    )
+    figure.update_yaxes(
+        title_text="Valor pago positivo (R$)",
+        tickprefix="R$ ",
+        tickformat="~s",
+    )
+    figure.update_layout(showlegend=False)
+    return _style_figure(figure, height=440)
+
+
+def payment_mean_ci_chart(statistics: pd.DataFrame) -> go.Figure:
+    """Média de ValorPago positivo e IC bilateral de 95% por ano."""
+    data = statistics.loc[statistics["Escopo"] != "Todos"].copy().sort_values("Ano")
+    data["AnoLabel"] = data["Ano"].astype("Int64").astype("string")
+    data["ErroSuperior"] = data["IC95Superior"] - data["Media"]
+    data["ErroInferior"] = data["Media"] - data["IC95Inferior"]
+
+    figure = go.Figure(
+        go.Scatter(
+            x=data["AnoLabel"],
+            y=data["Media"],
+            mode="markers+lines",
+            error_y={
+                "type": "data",
+                "symmetric": False,
+                "array": data["ErroSuperior"],
+                "arrayminus": data["ErroInferior"],
+                "visible": True,
+                "thickness": 2,
+                "width": 8,
+            },
+            customdata=data[["IC95Inferior", "IC95Superior", "PagamentosPositivos"]],
+            hovertemplate=(
+                "Ano %{x}<br>"
+                "Média: R$ %{y:,.2f}<br>"
+                "IC 95%: R$ %{customdata[0]:,.2f} a R$ %{customdata[1]:,.2f}<br>"
+                "n positivo: %{customdata[2]:,}<extra></extra>"
+            ),
+            name="Média e IC 95%",
+        )
+    )
+    figure.update_xaxes(title_text="Ano", type="category")
+    figure.update_yaxes(
+        title_text="Média do valor pago positivo (R$)",
+        tickprefix="R$ ",
+        tickformat="~s",
+    )
+    figure.update_layout(showlegend=False)
+    return _style_figure(figure, height=420)
+
+
+def probability_chart(
+    statistics: pd.DataFrame,
+    concentration_summary: pd.DataFrame,
+) -> go.Figure:
+    """Probabilidades empíricas calculadas por frequência relativa."""
+    overall = statistics.loc[statistics["Escopo"] == "Todos"].iloc[0]
+    concentration = concentration_summary.iloc[0]
+    data = pd.DataFrame(
+        {
+            "Evento": [
+                "Registro tem pagamento positivo",
+                "Pagamento positivo é outlier superior",
+                "Registro positivo pertence ao Top 10",
+            ],
+            "Probabilidade": [
+                overall["ProbPagamentoPositivo"] * 100,
+                overall["ProbOutlierSuperior"] * 100,
+                concentration["TopNParticipacaoRegistrosPct"],
+            ],
+        }
+    )
+
+    figure = px.bar(
+        data,
+        x="Probabilidade",
+        y="Evento",
+        orientation="h",
+        text=data["Probabilidade"].map(lambda value: f"{value:.2f}%"),
+        labels={"Probabilidade": "Probabilidade empírica (%)", "Evento": ""},
+        color_discrete_sequence=[PRIMARY_COLOR],
+    )
+    figure.update_traces(
+        textposition="outside",
+        hovertemplate="%{y}<br>%{x:.2f}%<extra></extra>",
+    )
+    figure.update_xaxes(range=[0, 100], ticksuffix="%")
+    figure.update_layout(showlegend=False)
+    return _style_figure(figure, height=360)

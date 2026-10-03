@@ -49,7 +49,12 @@
     "metrics_by_subelement.csv",
     "metrics_by_beneficiary.csv",
     "metrics_by_licitacao.csv",
-    "metrics_by_process.csv"
+    "metrics_by_process.csv",
+    "variable_catalog.csv",
+    "payment_statistics.csv",
+    "beneficiary_concentration.csv",
+    "beneficiary_concentration_summary.csv",
+    "payments_by_licitacao_positive.csv"
   ],
   "date_min": "2024-01-02 00:00:00",
   "date_max": "2025-12-31 00:00:00"

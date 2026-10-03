@@ -1,0 +1,6 @@
+﻿Variavel,Natureza,Escala,Papel,Uso
+Ano,Quantitativa discreta (temporal),Intervalar,Recorte temporal,Comparar a distribuição dos pagamentos entre 2024 e 2025.
+ValorPago,Quantitativa contínua,Razão,Medida principal,"Calcular estatísticas, boxplot, probabilidade e intervalo de confiança."
+Favorecido,Qualitativa nominal,Nominal,Dimensão,Identificar para quem os recursos foram destinados.
+TipoFavorecido,Qualitativa nominal codificada,Nominal,Dimensão de contexto,Distinguir categorias de favorecidos sem assumir um significado não documentado para cada código.
+TipoLicitacao,Qualitativa nominal,Nominal,Dimensão,Comparar modalidades/formas de contratação associadas aos pagamentos.
