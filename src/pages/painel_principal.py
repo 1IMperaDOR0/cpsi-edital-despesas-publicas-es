@@ -177,7 +177,7 @@ layout = html.Div(
                     className="filter-group",
                 ),
                 html.Span(
-                    f"2024 e 2025 · Pago",
+                    f"2024 e 2025",
                     id="main-filter-summary",
                     className="badge main-filter-summary",
                 ),
