@@ -56,7 +56,7 @@ layout = html.Div(
                     className="chart-card",
                 ),
             ],
-            className="dashboard-grid dashboard-grid--2",
+            className="dashboard-grid dashboard-grid--1",
         ),
     ],
     className="page-content",

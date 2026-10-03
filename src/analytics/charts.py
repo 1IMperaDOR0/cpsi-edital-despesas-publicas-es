@@ -32,8 +32,11 @@ def _style_figure(
     figure.update_layout(
         template="plotly_white",
         height=height,
+        # Fundo transparente: o cartão (style.css) define a cor no tema claro/escuro.
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         margin={"l": 24, "r": 24, "t": top_margin, "b": 30},
-        font={"family": "Arial, sans-serif", "color": "#1f2937", "size": 12},
+        font={"family": "Inter, Arial, sans-serif", "color": "#1f2937", "size": 12},
         hoverlabel={"bgcolor": "#111827", "font_color": "#ffffff"},
         legend={"orientation": "h", "yanchor": "bottom", "y": legend_y, "x": 0},
     )
