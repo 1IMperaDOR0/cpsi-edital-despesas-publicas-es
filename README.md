@@ -2,7 +2,7 @@
 
 ## Objetivo desta etapa
 
-Esta versão do projeto está focada no **pipeline de dados** e em deixar um contrato simples e documentado para que outra equipe possa assumir posteriormente a análise e o painel em Dash.
+Esta versão do projeto está focada no **pipeline de dados** e em deixar um contrato simples e documentado para que vocês possam assumir posteriormente a análise e o painel em Dash.
 
 Fluxo atual:
 
@@ -473,6 +473,7 @@ Consulte também:
 
 ```text
 docs/DATA_CONTRACT.md
+docs/HANDOFF.md
 docs/INITIAL_DATA_AUDIT.md
 ```
 

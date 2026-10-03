@@ -1,0 +1,49 @@
+{
+  "processed_files": [
+    "2024-parte-01.csv.gz",
+    "2024-parte-02.csv.gz",
+    "2024-parte-03.csv.gz",
+    "2024-parte-04.csv.gz",
+    "2025-parte-01.csv.gz",
+    "2025-parte-02.csv.gz",
+    "2025-parte-03.csv.gz",
+    "2025-parte-04.csv.gz"
+  ],
+  "rows": 1092158,
+  "years": [
+    2024,
+    2025
+  ],
+  "conversion_errors": {
+    "ValorEmpenho": 0,
+    "ValorLiquidado": 0,
+    "ValorPago": 0,
+    "ValorRap": 0,
+    "Data": 0,
+    "Ano": 0
+  },
+  "year_date_mismatch": 0,
+  "id_column_available": true,
+  "repeated_id_rows": 0,
+  "repeated_id_values": 0,
+  "reconciliation_by_year": {
+    "ValorEmpenho": {
+      "difference": 0.0,
+      "ok": true
+    },
+    "ValorLiquidado": {
+      "difference": 3.814697265625e-06,
+      "ok": true
+    },
+    "ValorPago": {
+      "difference": 0.0,
+      "ok": true
+    },
+    "ValorRap": {
+      "difference": 0.0,
+      "ok": true
+    }
+  },
+  "date_min": "2024-01-02 00:00:00",
+  "date_max": "2025-12-31 00:00:00"
+}
