@@ -8,7 +8,7 @@ from src.analytics.charts import (
 from src.analytics.report_loader import load_report
 
 
-dash.register_page(__name__, path="/", name="Visão Geral", order=0)
+dash.register_page(__name__, path="/visao-geral", name="Visão Geral", order=1)
 
 monthly_totals = load_report("metrics_by_month.csv")
 yearly_totals = load_report("metrics_by_year.csv")

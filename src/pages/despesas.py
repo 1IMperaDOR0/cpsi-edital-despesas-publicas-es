@@ -8,7 +8,7 @@ from src.analytics.charts import (
 from src.analytics.report_loader import load_report
 
 
-dash.register_page(__name__, name="Despesas", order=1)
+dash.register_page(__name__, name="Despesas", order=2)
 
 elements = load_report("metrics_by_element.csv")
 subelements = load_report("metrics_by_subelement.csv")

@@ -45,14 +45,20 @@ def _style_figure(
     return figure
 
 
-def financial_evolution_chart(monthly_totals: pd.DataFrame) -> go.Figure:
-    """Mostra a evolução mensal das quatro medidas financeiras em 2024 e 2025."""
-    columns = ["AnoMes", *FINANCIAL_LABELS]
+def financial_evolution_chart(
+    monthly_totals: pd.DataFrame,
+    metric: str | None = None,
+) -> go.Figure:
+    """Mostra a evolução mensal da medida escolhida ou de todas as medidas."""
+    selected_columns = (
+        [metric] if metric in FINANCIAL_LABELS else list(FINANCIAL_LABELS)
+    )
+    columns = ["AnoMes", *selected_columns]
     data = monthly_totals[columns].copy()
     data["Ano"] = data["AnoMes"].astype("string").str[:4]
     data = data.melt(
         id_vars=["AnoMes", "Ano"],
-        value_vars=list(FINANCIAL_LABELS),
+        value_vars=selected_columns,
         var_name="Metrica",
         value_name="Valor",
     )
@@ -79,13 +85,19 @@ def financial_evolution_chart(monthly_totals: pd.DataFrame) -> go.Figure:
     return _style_figure(figure, height=480, top_margin=78, legend_y=1.08)
 
 
-def annual_financial_comparison_chart(yearly_totals: pd.DataFrame) -> go.Figure:
-    """Compara os totais das medidas financeiras entre os anos disponíveis."""
-    data = yearly_totals[["Ano", *FINANCIAL_LABELS]].copy()
+def annual_financial_comparison_chart(
+    yearly_totals: pd.DataFrame,
+    metric: str | None = None,
+) -> go.Figure:
+    """Compara a medida escolhida ou todas as medidas entre os anos disponíveis."""
+    selected_columns = (
+        [metric] if metric in FINANCIAL_LABELS else list(FINANCIAL_LABELS)
+    )
+    data = yearly_totals[["Ano", *selected_columns]].copy()
     data["Ano"] = data["Ano"].astype("string")
     data = data.melt(
         id_vars="Ano",
-        value_vars=list(FINANCIAL_LABELS),
+        value_vars=selected_columns,
         var_name="Metrica",
         value_name="Valor",
     )

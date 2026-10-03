@@ -47,6 +47,7 @@ cpsi-edital-despesas-publicas-es/
 │   │   ├── writer.py
 │   │   └── runner.py
 │   ├── pages/
+│   │   ├── painel_principal.py
 │   │   ├── overview.py
 │   │   ├── despesas.py
 │   │   ├── favorecidos.py
@@ -380,7 +381,13 @@ Para iniciar o painel, execute na raiz do projeto:
 python app.py
 ```
 
-As quatro páginas respondem às seguintes perguntas:
+A página inicial apresenta a narrativa geral do projeto. As quatro páginas analíticas respondem às perguntas que orientam o painel:
+
+### Painel Principal
+
+Apresenta o contexto da base, indicadores gerais, evolução dos valores, dispersão dos pagamentos e intervalos de confiança. Os filtros de ano e medida financeira atualizam o recorte e as séries temporais.
+
+Arquivo e rota: src/pages/painel_principal.py — /
 
 ### 1. Visão Geral
 
@@ -388,11 +395,7 @@ As quatro páginas respondem às seguintes perguntas:
 
 > Como os valores empenhados, liquidados, pagos e de restos a pagar evoluem entre 2024 e 2025?
 
-Arquivo:
-
-```text
-src/pages/overview.py
-```
+Arquivo e rota: src/pages/overview.py — /visao-geral
 
 ### 2. Despesas
 
@@ -400,11 +403,7 @@ src/pages/overview.py
 
 > Em quais elementos e subelementos de despesa os recursos públicos estão sendo aplicados?
 
-Arquivo:
-
-```text
-src/pages/despesas.py
-```
+Arquivo e rota: src/pages/despesas.py — /despesas
 
 ### 3. Favorecidos e Contratações
 
@@ -412,11 +411,7 @@ src/pages/despesas.py
 
 > Para quem os recursos foram destinados e como os pagamentos se distribuem entre as modalidades de contratação?
 
-Arquivo:
-
-```text
-src/pages/favorecidos.py
-```
+Arquivo e rota: src/pages/favorecidos.py — /favorecidos
 
 ### 4. Rastreabilidade
 
@@ -424,11 +419,7 @@ src/pages/favorecidos.py
 
 > Quais registros, documentos e processos compõem os valores apresentados no painel?
 
-Arquivo:
-
-```text
-src/pages/rastreabilidade.py
-```
+Arquivo e rota: src/pages/rastreabilidade.py — /rastreabilidade
 
 ## Fluxo recomendado
 

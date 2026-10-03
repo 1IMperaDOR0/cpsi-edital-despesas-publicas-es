@@ -8,7 +8,7 @@ from src.analytics.charts import (
 from src.analytics.report_loader import load_report
 
 
-dash.register_page(__name__, name="Rastreabilidade", order=3)
+dash.register_page(__name__, name="Rastreabilidade", order=4)
 
 processes = load_report("metrics_by_process.csv")
 quality_summary = load_report("quality_summary.csv")

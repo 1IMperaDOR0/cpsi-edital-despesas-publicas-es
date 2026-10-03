@@ -11,7 +11,7 @@ from src.analytics.charts import (
 from src.analytics.report_loader import load_report
 
 
-dash.register_page(__name__, name="Favorecidos e Contratações", order=2)
+dash.register_page(__name__, name="Favorecidos e Contratações", order=3)
 
 statistics = load_report("payment_statistics.csv")
 concentration = load_report("beneficiary_concentration.csv")
