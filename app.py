@@ -115,5 +115,11 @@ def highlight_active_link(pathname):
         for page in dash.page_registry.values()
     ]
 
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8050)),
+        debug=False,
+    )

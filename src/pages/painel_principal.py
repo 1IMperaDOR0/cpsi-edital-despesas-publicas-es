@@ -391,14 +391,6 @@ layout = html.Div(
                     ],
                     className="interpretation-card",
                 ),
-                html.P(
-                    "O IC de 95% é uma estimativa didática para a média dos pagamentos "
-                    "positivos, calculada com t-Student. Como a base observada cobre os "
-                    "registros disponíveis do período, o intervalo não é necessário "
-                    "para descrever o total observado e não deve ser interpretado como "
-                    "previsão de gastos futuros.",
-                    className="page-note",
-                ),
             ],
             className="page-content",
         ),
