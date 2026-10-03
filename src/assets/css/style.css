@@ -1573,3 +1573,62 @@ a {
   content: "";
   transform: rotate(-45deg);
 }
+
+/* Filtros compactos usados nas páginas analíticas. */
+.page-filter-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0 0 18px;
+}
+
+.page-filter-row .filter-group {
+  min-width: 200px;
+  flex: 0 1 280px;
+}
+
+.page-filter-row .filter-group--search {
+  flex: 1 1 320px;
+}
+
+.page-inline-filter {
+  width: fit-content;
+  max-width: 100%;
+  margin: 12px 0 16px;
+}
+
+.page-inline-filter--wide {
+  width: min(420px, 100%);
+}
+
+.filter-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filter-input::placeholder {
+  color: var(--text-muted);
+}
+
+.filter-input:focus {
+  border-color: var(--brand-500);
+  box-shadow: var(--ring);
+}
+
+@media (max-width: 620px) {
+  .page-filter-row .filter-group,
+  .page-filter-row .filter-group--search {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+}

@@ -1,5 +1,5 @@
 import dash
-from dash import dash_table, dcc, html
+from dash import Input, Output, callback, dash_table, dcc, html
 
 from src.analytics.charts import (
     beneficiary_pareto_chart,
@@ -36,25 +36,36 @@ def integer(value: float) -> str:
     return f"{int(value):,}".replace(",", ".")
 
 
-stat_rows = []
-for _, row in statistics.loc[statistics["Escopo"] != "Todos"].sort_values("Ano").iterrows():
-    stat_rows.append(
-        html.Tr(
-            [
-                html.Td(str(int(row["Ano"]))),
-                html.Td(integer(row["PagamentosPositivos"])),
-                html.Td(br_currency(row["Media"])),
-                html.Td(br_currency(row["Mediana"])),
-                html.Td(br_currency(row["DesvioPadrao"])),
-                html.Td(br_currency(row["Q1"])),
-                html.Td(br_currency(row["Q3"])),
-                html.Td(pct(row["ProbOutlierSuperior"] * 100)),
-                html.Td(
-                    f"{br_currency(row['IC95Inferior'])} — {br_currency(row['IC95Superior'])}"
-                ),
-            ]
+STATISTICS_YEARS = sorted(
+    statistics.loc[statistics["Escopo"] != "Todos", "Escopo"].astype(str).unique()
+)
+
+
+def statistics_rows(year_scope: str = "Todos"):
+    data = statistics.loc[statistics["Escopo"] != "Todos"].copy()
+    if year_scope != "Todos":
+        data = data.loc[data["Escopo"].astype(str) == year_scope]
+
+    rows = []
+    for _, row in data.sort_values("Ano").iterrows():
+        rows.append(
+            html.Tr(
+                [
+                    html.Td(str(int(row["Ano"]))),
+                    html.Td(integer(row["PagamentosPositivos"])),
+                    html.Td(br_currency(row["Media"])),
+                    html.Td(br_currency(row["Mediana"])),
+                    html.Td(br_currency(row["DesvioPadrao"])),
+                    html.Td(br_currency(row["Q1"])),
+                    html.Td(br_currency(row["Q3"])),
+                    html.Td(pct(row["ProbOutlierSuperior"] * 100)),
+                    html.Td(
+                        f"{br_currency(row['IC95Inferior'])} — {br_currency(row['IC95Superior'])}"
+                    ),
+                ]
+            )
         )
-    )
+    return rows
 
 
 layout = html.Div(
@@ -72,7 +83,9 @@ layout = html.Div(
                     "boxplot, probabilidade empírica e intervalo de confiança. Para essas "
                     "medidas, são considerados pagamentos com ValorPago > 0; zeros e valores "
                     "negativos permanecem na base original e podem representar ausência de "
-                    "pagamento ou ajustes/estornos.",
+                    "pagamento ou ajustes/estornos. Os controles em cada seção ajustam o "
+                    "ranking, a modalidade pesquisada ou o ano da análise estatística. "
+                    "Rankings e modalidades abrangem 2024 e 2025.",
                     className="page-note",
                 ),
             ],
@@ -161,7 +174,25 @@ layout = html.Div(
                             "parte dos pagamentos.",
                             className="section-note",
                         ),
+                        html.Div(
+                            [
+                                html.Label("Favorecidos exibidos", htmlFor="beneficiary-top-n"),
+                                dcc.RadioItems(
+                                    id="beneficiary-top-n",
+                                    options=[
+                                        {"label": str(value), "value": value}
+                                        for value in (5, 10, 15)
+                                    ],
+                                    value=15,
+                                    inline=True,
+                                    labelStyle={"display": "inline-flex"},
+                                    className="pill-options",
+                                ),
+                            ],
+                            className="filter-group page-inline-filter",
+                        ),
                         dcc.Graph(
+                            id="beneficiary-pareto",
                             figure=beneficiary_pareto_chart(concentration),
                             config={"displayModeBar": False, "responsive": True},
                         ),
@@ -176,7 +207,20 @@ layout = html.Div(
                             "qualitativa nominal e o objetivo é comparar magnitudes entre categorias.",
                             className="section-note",
                         ),
+                        html.Div(
+                            [
+                                html.Label("Buscar modalidade", htmlFor="procurement-search"),
+                                dcc.Input(
+                                    id="procurement-search",
+                                    type="search",
+                                    placeholder="Digite parte do nome da modalidade",
+                                    className="filter-input",
+                                ),
+                            ],
+                            className="filter-group page-inline-filter page-inline-filter--wide",
+                        ),
                         dcc.Graph(
+                            id="procurement-types-chart",
                             figure=procurement_types_chart(procurement_types),
                             config={"displayModeBar": False, "responsive": True},
                         ),
@@ -192,8 +236,29 @@ layout = html.Div(
                 html.P(
                     "Média, mediana, desvio padrão e quartis são apresentados em conjunto. "
                     "Isso é importante porque distribuições financeiras podem ser assimétricas "
-                    "e a média isolada pode ser puxada por pagamentos muito altos.",
+                    "e a média isolada pode ser puxada por pagamentos muito altos. O filtro "
+                    "de ano atualiza a tabela, o boxplot e o intervalo de confiança.",
                     className="section-note",
+                ),
+                html.Div(
+                    [
+                        html.Label("Ano da análise estatística", htmlFor="beneficiary-statistics-year"),
+                        dcc.RadioItems(
+                            id="beneficiary-statistics-year",
+                            options=[
+                                {"label": "Todos", "value": "Todos"},
+                                *[
+                                    {"label": year, "value": year}
+                                    for year in STATISTICS_YEARS
+                                ],
+                            ],
+                            value="Todos",
+                            inline=True,
+                            labelStyle={"display": "inline-flex"},
+                            className="pill-options",
+                        ),
+                    ],
+                    className="filter-group page-inline-filter",
                 ),
                 html.Div(
                     [
@@ -214,7 +279,10 @@ layout = html.Div(
                                         ]
                                     )
                                 ),
-                                html.Tbody(stat_rows),
+                                html.Tbody(
+                                    statistics_rows(),
+                                    id="beneficiary-statistics-rows",
+                                ),
                             ],
                             className="stats-table",
                         )
@@ -236,6 +304,7 @@ layout = html.Div(
                             className="section-note",
                         ),
                         dcc.Graph(
+                            id="beneficiary-boxplot",
                             figure=payment_boxplot_chart(statistics),
                             config={"displayModeBar": False, "responsive": True},
                         ),
@@ -253,6 +322,7 @@ layout = html.Div(
                             className="section-note",
                         ),
                         dcc.Graph(
+                            id="beneficiary-confidence-interval",
                             figure=payment_mean_ci_chart(statistics),
                             config={"displayModeBar": False, "responsive": True},
                         ),
@@ -347,3 +417,54 @@ layout = html.Div(
     ],
     className="page-content",
 )
+
+
+@callback(
+    Output("beneficiary-pareto", "figure"),
+    Input("beneficiary-top-n", "value"),
+)
+def update_beneficiary_ranking(top_n):
+    return beneficiary_pareto_chart(concentration, top_n=int(top_n or 15))
+
+
+@callback(
+    Output("procurement-types-chart", "figure"),
+    Input("procurement-search", "value"),
+)
+def update_procurement_types(search):
+    query = (search or "").strip()
+    data = procurement_types
+    if query:
+        matches = data["TipoLicitacao"].astype("string").str.contains(
+            query, case=False, na=False, regex=False
+        )
+        data = data.loc[matches]
+
+    figure = procurement_types_chart(data)
+    if query and data.empty:
+        figure.add_annotation(
+            text="Nenhuma modalidade encontrada.",
+            x=0.5,
+            y=0.5,
+            xref="paper",
+            yref="paper",
+            showarrow=False,
+        )
+    return figure
+
+
+@callback(
+    Output("beneficiary-statistics-rows", "children"),
+    Output("beneficiary-boxplot", "figure"),
+    Output("beneficiary-confidence-interval", "figure"),
+    Input("beneficiary-statistics-year", "value"),
+)
+def update_beneficiary_statistics(year_scope):
+    annual = statistics.loc[statistics["Escopo"] != "Todos"].copy()
+    if year_scope and year_scope != "Todos":
+        annual = annual.loc[annual["Escopo"].astype(str) == year_scope]
+    return (
+        statistics_rows(year_scope or "Todos"),
+        payment_boxplot_chart(annual),
+        payment_mean_ci_chart(annual),
+    )
