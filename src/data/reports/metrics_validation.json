@@ -44,6 +44,13 @@
       "ok": true
     }
   },
+  "dashboard_reports": [
+    "metrics_by_element.csv",
+    "metrics_by_subelement.csv",
+    "metrics_by_beneficiary.csv",
+    "metrics_by_licitacao.csv",
+    "metrics_by_process.csv"
+  ],
   "date_min": "2024-01-02 00:00:00",
   "date_max": "2025-12-31 00:00:00"
 }

@@ -2,9 +2,9 @@
 
 ## Objetivo
 
-A camada processada existe para alimentar a análise exploratoria e, depois,
-o painel Dash. Ela não substitui os CSVs oficiais em `src/data`, que continuam sendo a
-fonte da verdade.
+A camada processada alimenta a análise exploratória e os relatórios agregados
+consumidos pelo painel Dash. Ela não substitui os CSVs oficiais em `src/data`,
+que continuam sendo a fonte da verdade.
 
 ## Regras desta primeira versão
 

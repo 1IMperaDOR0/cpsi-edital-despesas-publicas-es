@@ -1,0 +1,140 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f3f6f8;
+  color: #17212b;
+  font-family: Arial, sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.navbar {
+  background: #123b43;
+  color: #fff;
+}
+
+.navbar-content {
+  width: min(1440px, 100%);
+  min-height: 68px;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.navbar-brand {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.navbar-link {
+  padding: 9px 12px;
+  border-radius: 7px;
+  color: #e5f2f2;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.navbar-link:hover,
+.navbar-link:focus {
+  background: #24555d;
+  color: #fff;
+}
+
+.app-content {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 32px 28px 48px;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.page-intro {
+  padding: 6px 2px 4px;
+}
+
+.page-intro h1 {
+  margin: 0 0 10px;
+  color: #173a40;
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.2;
+}
+
+.page-question {
+  max-width: 900px;
+  margin: 0;
+  color: #354b50;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.page-note {
+  margin: 9px 0 0;
+  color: #64777c;
+  font-size: 13px;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+.dashboard-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dashboard-grid--1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.chart-card {
+  min-width: 0;
+  padding: 18px 18px 10px;
+  border: 1px solid #e1e9eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 41 46 / 4%);
+}
+
+.chart-card h2 {
+  margin: 2px 4px 0;
+  color: #28454a;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+@media (max-width: 900px) {
+  .navbar-content {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 20px;
+  }
+
+  .dashboard-grid--2 {
+    grid-template-columns: 1fr;
+  }
+
+  .app-content {
+    padding: 24px 18px 36px;
+  }
+}

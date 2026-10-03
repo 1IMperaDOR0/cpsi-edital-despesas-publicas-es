@@ -23,6 +23,7 @@ from src.analytics.metrics import (
     totals_by_unit,
     totals_by_year,
 )
+from src.analytics.dashboard_reports import build_dashboard_reports
 
 
 PROCESSED_DIR = (
@@ -392,6 +393,10 @@ def main() -> None:
             by_year,
         )
     )
+    dashboard_reports = build_dashboard_reports(
+        files,
+        REPORTS_DIR,
+    )
     missing_financial_columns = [
         column
         for column in FINANCIAL_COLUMNS
@@ -463,6 +468,7 @@ def main() -> None:
         "reconciliation_by_year": (
             reconciliation
         ),
+        "dashboard_reports": dashboard_reports,
     }
 
     if (
@@ -538,6 +544,7 @@ def main() -> None:
     )
 
     print(REPORTS_DIR)
+    print("Relatórios do painel:", ", ".join(dashboard_reports))
 
 
 if __name__ == "__main__":

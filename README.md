@@ -2,7 +2,7 @@
 
 ## Objetivo desta etapa
 
-Esta versão do projeto está focada no **pipeline de dados** e em deixar um contrato simples e documentado para que vocês possam assumir posteriormente a análise e o painel em Dash.
+Esta versão do projeto inclui o **pipeline de dados**, os relatórios agregados e um painel Dash com gráficos para explorar as despesas públicas do Espírito Santo.
 
 Fluxo atual:
 
@@ -21,7 +21,9 @@ quality / profiling
         ↓
 camada processada
         ↓
-Dash (etapa futura)
+relatórios agregados em src/data/reports/
+        ↓
+Dash
 ```
 
 ## Estrutura do projeto
@@ -311,15 +313,23 @@ writer
 A execução gera arquivos em:
 
 ```text
-data/processed/
-data/reports/
+src/data/processed/
+src/data/reports/
 ```
 
-Entre os relatórios esperados:
+Os relatórios incluem:
 
 ```text
-data/reports/manifest.json
-data/reports/quality_summary.csv
+src/data/reports/manifest.json
+src/data/reports/quality_summary.csv
+src/data/reports/metrics_by_year.csv
+src/data/reports/metrics_by_month.csv
+src/data/reports/metrics_by_unit.csv
+src/data/reports/metrics_by_element.csv
+src/data/reports/metrics_by_subelement.csv
+src/data/reports/metrics_by_beneficiary.csv
+src/data/reports/metrics_by_licitacao.csv
+src/data/reports/metrics_by_process.csv
 ```
 
 ## Pipeline completo
@@ -338,44 +348,43 @@ python src/scripts/run_pipeline.py --format csv.gz
 python src/scripts/run_pipeline.py --format parquet
 ```
 
-Para a futura aplicação analítica, a preferência é utilizar a camada processada, e não os CSVs oficiais diretamente.
+Depois de gerar a camada processada, crie os relatórios usados pelo painel:
 
-## Regra para o futuro painel Dash
+```bash
+python src/scripts/validate_metrics.py
+```
 
-O Dash não deve ler ou tratar diretamente os CSVs oficiais.
+O script calcula os totais financeiros e os agregados por despesa, favorecido, tipo de licitação e processo. O painel lê esses CSVs prontos em `src/data/reports/`; ele não carrega a base completa no navegador.
 
-Arquitetura esperada:
+## Painel Dash
+
+O Dash não lê nem trata diretamente os CSVs oficiais. O fluxo atual é:
 
 ```text
 src/data/*.csv
        ↓
    Pipeline
        ↓
-data/processed/
+src/data/processed/
+       ↓
+validate_metrics.py
+       ↓
+src/data/reports/*.csv
        ↓
     Dash
 ```
 
-Isso separa as responsabilidades entre as equipes.
+Para iniciar o painel, execute na raiz do projeto:
 
-A equipe responsável pelo painel deve receber dados já:
+```bash
+python app.py
+```
 
-- identificados;
-- validados;
-- tipados;
-- tratados;
-- documentados;
-- rastreáveis.
-
-## Páginas Dash - apenas esqueleto
-
-Nesta etapa ainda não foram implementados gráficos, callbacks ou KPIs definitivos.
-
-As páginas existem apenas para representar a futura jornada analítica.
+As quatro páginas respondem às seguintes perguntas:
 
 ### 1. Visão Geral
 
-**Pergunta norteadora:**
+**Pergunta:**
 
 > Como os valores empenhados, liquidados, pagos e de restos a pagar evoluem entre 2024 e 2025?
 
@@ -387,7 +396,7 @@ src/pages/overview.py
 
 ### 2. Despesas
 
-**Pergunta norteadora:**
+**Pergunta:**
 
 > Em quais elementos e subelementos de despesa os recursos públicos estão sendo aplicados?
 
@@ -399,7 +408,7 @@ src/pages/despesas.py
 
 ### 3. Favorecidos e Contratações
 
-**Pergunta norteadora:**
+**Pergunta:**
 
 > Para quem os recursos foram destinados e como os pagamentos se distribuem entre as modalidades de contratação?
 
@@ -411,7 +420,7 @@ src/pages/favorecidos.py
 
 ### 4. Rastreabilidade
 
-**Pergunta norteadora:**
+**Pergunta:**
 
 > Quais registros, documentos e processos compõem os valores apresentados no painel?
 
@@ -421,51 +430,25 @@ Arquivo:
 src/pages/rastreabilidade.py
 ```
 
-## Ordem recomendada de validação
+## Fluxo recomendado
 
-Antes de avançar para gráficos e callbacks, execute nesta ordem:
+Execute nesta ordem para atualizar os dados do painel:
 
 ```text
 1. Instalar dependências
        ↓
 2. python src/scripts/inspect_source.py
        ↓
-3. pytest -q
+3. python src/scripts/run_pipeline.py
        ↓
-4. python src/scripts/run_pipeline.py --limit-rows-per-source 100
+4. python src/scripts/validate_metrics.py
        ↓
-5. Conferir os arquivos gerados
-       ↓
-6. Fazer exploração dos dados
-       ↓
-7. Definir métricas e KPIs
-       ↓
-8. Implementar o Dash
+5. python app.py
 ```
 
-## Próxima etapa recomendada
+## Observação sobre as métricas
 
-Depois que o pipeline estiver validado localmente, a próxima etapa deve ser a exploração da camada processada.
-
-A primeira exploração deve verificar:
-
-- quantidade de registros;
-- tipos das colunas;
-- valores ausentes;
-- duplicidades;
-- cardinalidade das dimensões;
-- comportamento de `ValorEmpenho`;
-- comportamento de `ValorLiquidado`;
-- comportamento de `ValorPago`;
-- comportamento de `ValorRap`;
-- distribuição de `UnidadeGestora`;
-- distribuição de `Favorecido`;
-- distribuição de `TipoLicitacao`;
-- distribuição de `ElementoDespesa`;
-- distribuição de `SubelementoDespesa`;
-- comparação entre 2024 e 2025.
-
-Somente depois dessa validação devem ser definidos os indicadores definitivos do painel.
+Os gráficos apresentam agregações dos valores como constam nos registros. A documentação do contrato ainda recomenda validar a semântica e o nível seguro de soma dessas medidas antes de tratá-las como KPIs definitivos.
 
 ## Documentação complementar
 
