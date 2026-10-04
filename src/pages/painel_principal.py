@@ -334,56 +334,6 @@ layout = html.Div(
         ),
         html.Section(
             [
-                html.H2("O que a distribuição revela"),
-                html.P(
-                    "O boxplot resume a dispersão dos pagamentos positivos por ano. "
-                    "A tabela reúne desvio padrão e intervalo interquartil (IQR); "
-                    "o gráfico ao lado estima a média com intervalo t de 95%.",
-                    className="section-note",
-                ),
-                html.Div(
-                    [
-                        html.Section(
-                            [
-                                html.H2("Dispersão dos pagamentos positivos"),
-                                dcc.Graph(
-                                    id="main-boxplot",
-                                    figure=payment_boxplot_chart(_initial_statistics),
-                                    config={"displayModeBar": False, "responsive": True},
-                                ),
-                            ],
-                            className="chart-card",
-                        ),
-                        html.Section(
-                            [
-                                html.H2("Média e intervalo de confiança"),
-                                dcc.Graph(
-                                    id="main-ci-chart",
-                                    figure=payment_mean_ci_chart(_initial_statistics),
-                                    config={"displayModeBar": False, "responsive": True},
-                                ),
-                            ],
-                            className="chart-card",
-                        ),
-                    ],
-                    className="dashboard-grid dashboard-grid--2",
-                ),
-                html.Div(
-                    [
-                        html.H2("Resumo estatístico por ano"),
-                        html.P(
-                            "As estatísticas de distribuição consideram somente "
-                            "ValorPago > 0; zeros e negativos continuam incluídos "
-                            "nos totais agregados e na base.",
-                            className="section-note",
-                        ),
-                        html.Div(
-                            statistics_table(_initial_statistics),
-                            id="main-stats-table",
-                        ),
-                    ],
-                    className="chart-card",
-                ),
                 html.Div(
                     [
                         html.H2("Leitura deste recorte"),
