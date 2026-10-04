@@ -334,18 +334,6 @@ layout = html.Div(
         ),
         html.Section(
             [
-                html.Div(
-                    [
-                        html.H2("Leitura deste recorte"),
-                        html.Ul(id="main-story-insights", children=[]),
-                    ],
-                    className="interpretation-card",
-                ),
-            ],
-            className="page-content",
-        ),
-        html.Section(
-            [
                 html.H2("Continue a exploração"),
                 html.P(
                     "Cada página aprofunda uma etapa da história e permite chegar a "
