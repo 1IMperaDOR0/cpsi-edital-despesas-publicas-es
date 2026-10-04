@@ -137,6 +137,19 @@ layout = html.Div(
             ],
             className="page-intro",
         ),
+        html.Section(
+            [
+                html.H2("Como os valores se movem"),
+                html.P(
+                    "Escolha a medida financeira para comparar os anos e acompanhar "
+                    "os totais mensais do recorte. Os pontos são somas dos registros "
+                    "em cada mês; os gráficos estatísticos abaixo mantêm foco em "
+                    "pagamentos positivos.",
+                    className="section-note",
+                ),
+            ],
+            className="chart-card"
+        ),
         html.Div(
             [
                 html.Div(
@@ -294,14 +307,6 @@ layout = html.Div(
         ),
         html.Section(
             [
-                html.H2("Como os valores se movem"),
-                html.P(
-                    "Escolha a medida financeira para comparar os anos e acompanhar "
-                    "os totais mensais do recorte. Os pontos são somas dos registros "
-                    "em cada mês; os gráficos estatísticos abaixo mantêm foco em "
-                    "pagamentos positivos.",
-                    className="section-note",
-                ),
                 html.Div(
                     [
                         html.Section(
