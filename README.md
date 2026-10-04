@@ -1,42 +1,83 @@
-# CPSI - Despesas Públicas do Espírito Santo
+# CPSI — Despesas Públicas do Espírito Santo
 
-## Objetivo desta etapa
+POC acadêmica de um painel de transparência para explorar despesas públicas do Governo do Espírito Santo referentes a 2024 e 2025.
 
-Esta versão do projeto inclui o **pipeline de dados**, os relatórios agregados e um painel Dash com gráficos para explorar as despesas públicas do Espírito Santo.
+O projeto transforma os CSVs oficiais em uma camada tratada, gera relatórios analíticos pré-calculados e apresenta os resultados em uma aplicação web construída com Dash e Plotly.
 
-Fluxo atual:
+## Público e proposta de valor
+
+O público prioritário é formado por cidadãos e jornalistas que desejam acompanhar e compreender a aplicação de recursos públicos sem manipular diretamente os arquivos brutos. Pesquisadores, gestores e profissionais de controle também podem utilizar a solução como apoio à exploração e à rastreabilidade dos registros.
+
+A proposta de valor é oferecer uma consulta simples, visual e auditável, permitindo comparar períodos e medidas financeiras, explorar categorias de gasto e favorecidos e chegar aos registros que sustentam os resultados apresentados.
+
+## Questões analíticas
+
+A POC foi organizada em torno de quatro perguntas:
+
+1. Como os valores empenhados, liquidados, pagos e de restos a pagar evoluem entre 2024 e 2025?
+2. Em quais elementos e subelementos de despesa os recursos públicos estão sendo aplicados?
+3. Como os pagamentos se distribuem entre os favorecidos e os tipos de licitação? Existe concentração relevante dos valores pagos?
+4. Quais registros, documentos e processos compõem os valores apresentados no painel?
+
+## Arquitetura
 
 ```text
 CSVs oficiais 2024/2025
         ↓
 data_loader.py
         ↓
-validação de schema
+schema.py
         ↓
 cleaning.py
         ↓
 transformations.py
         ↓
-quality / profiling
+profiling.py
         ↓
-camada processada
+src/data/processed/
         ↓
-relatórios agregados em src/data/reports/
+validate_metrics.py
         ↓
-Dash
+src/data/reports/
+        ↓
+Dash + Plotly
 ```
 
-## Estrutura do projeto
+Responsabilidades:
+
+- **Fonte:** 8 CSVs oficiais, 4 de 2024 e 4 de 2025.
+- **Pipeline:** descoberta, validação de schema, leitura em chunks, limpeza, transformação, qualidade e proveniência.
+- **Camada processada:** arquivos CSV.GZ ou Parquet com dados tratados.
+- **Analytics:** métricas e relatórios agregados produzidos a partir da camada processada.
+- **Apresentação:** Dash + Plotly consumindo relatórios agregados, sem carregar os CSVs brutos em cada interação.
+
+## Estrutura principal
 
 ```text
 cpsi-edital-despesas-publicas-es/
 ├── app.py
 ├── requirements.txt
+├── docs/
+│   ├── DATA_CONTRACT.md
+│   ├── HANDOFF.md
+│   ├── INITIAL_DATA_AUDIT.md
+│   └── METRICS.md
 ├── src/
+│   ├── analytics/
+│   │   └── metrics.py
+│   ├── assets/
 │   ├── data/
 │   │   ├── despesas_es_2024_completo_parte_01.csv
 │   │   ├── ...
-│   │   └── despesas_es_2025_completo_parte_04.csv
+│   │   ├── despesas_es_2025_completo_parte_04.csv
+│   │   ├── processed/
+│   │   └── reports/
+│   ├── pages/
+│   │   ├── painel_principal.py
+│   │   ├── overview.py
+│   │   ├── despesas.py
+│   │   ├── favorecidos.py
+│   │   └── rastreabilidade.py
 │   ├── pipeline/
 │   │   ├── config.py
 │   │   ├── data_loader.py
@@ -46,95 +87,41 @@ cpsi-edital-despesas-publicas-es/
 │   │   ├── profiling.py
 │   │   ├── writer.py
 │   │   └── runner.py
-│   ├── pages/
-│   │   ├── painel_principal.py
-│   │   ├── overview.py
-│   │   ├── despesas.py
-│   │   ├── favorecidos.py
-│   │   └── rastreabilidade.py
 │   └── scripts/
 │       ├── inspect_source.py
-│       └── run_pipeline.py
-├── tests/
-└── docs/
+│       ├── run_pipeline.py
+│       └── validate_metrics.py
+└── tests/
 ```
 
-## Como executar o projeto
+## Pré-requisitos
 
-Todos os comandos devem ser executados a partir da **raiz do projeto**.
-
-Exemplo no Windows:
-
-```bash
-cd c:\AllThings\projects\cpsi-edital-despesas-publicas-es
-```
-
-A raiz deve conter arquivos e pastas como:
-
-```text
-app.py
-requirements.txt
-src/
-tests/
-docs/
-```
-
-### Importante sobre `src/pipeline`
-
-Os arquivos em `src/pipeline/` são **módulos internos do projeto**. Eles foram criados para serem importados por outros componentes e, em regra, não devem ser executados diretamente pelo caminho do arquivo.
-
-Evite:
-
-```bash
-python src/pipeline/data_loader.py
-```
-
-Esse tipo de execução pode causar erros de importação como:
-
-```text
-ModuleNotFoundError: No module named 'src.pipeline'
-```
-
-Se for necessário executar um módulo diretamente para teste, use a notação de módulo a partir da raiz:
-
-```bash
-python -m src.pipeline.data_loader
-```
-
-Os pontos de entrada destinados à execução ficam preferencialmente em:
-
-```text
-src/scripts/
-```
-
-Exemplos:
-
-```bash
-python src/scripts/inspect_source.py
-python src/scripts/run_pipeline.py --limit-rows-per-source 100
-```
-
-## Instalação das dependências
+- Python 3.12 recomendado para reproduzir o ambiente usado no deploy atual.
+- Dependências declaradas em `requirements.txt`.
 
 A partir da raiz do projeto:
 
 ```bash
+python -m venv .venv
+```
+
+Windows:
+
+```bash
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Recomenda-se utilizar ambiente virtual.
-
-Exemplo no Windows:
+Linux/macOS:
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
 ## Dados de entrada
 
-Os arquivos oficiais devem permanecer em:
+Os 8 CSVs oficiais devem ficar diretamente em:
 
 ```text
 src/data/
@@ -153,304 +140,166 @@ despesas_es_2025_completo_parte_03.csv
 despesas_es_2025_completo_parte_04.csv
 ```
 
-Os CSVs oficiais são a **fonte da verdade** e não devem ser alterados manualmente.
+Os arquivos oficiais são a fonte da verdade e não devem ser editados manualmente.
 
-## Carregando os dados
+## Importante sobre `src/pipeline`
 
-O módulo responsável por localizar e carregar os arquivos é:
+Os arquivos em `src/pipeline/` são módulos internos. Eles devem ser importados pelo projeto e, em regra, não executados diretamente pelo caminho do arquivo.
 
-```text
-src/pipeline/data_loader.py
+Evite:
+
+```bash
+python src/pipeline/data_loader.py
 ```
 
-> `data_loader.py` é um módulo do pipeline. Normalmente ele será importado por outros componentes e não executado diretamente.
+Os pontos de entrada de execução ficam em `src/scripts/`.
 
-### Descobrir as fontes disponíveis
+## Fluxo de execução recomendado
 
-```python
-from src.pipeline.data_loader import discover_sources
-
-sources = discover_sources()
-
-for source in sources:
-    print(source.key, source.csv_path.name)
-```
-
-Resultado esperado:
-
-```text
-2024-parte-01 despesas_es_2024_completo_parte_01.csv
-2024-parte-02 despesas_es_2024_completo_parte_02.csv
-2024-parte-03 despesas_es_2024_completo_parte_03.csv
-2024-parte-04 despesas_es_2024_completo_parte_04.csv
-2025-parte-01 despesas_es_2025_completo_parte_01.csv
-2025-parte-02 despesas_es_2025_completo_parte_02.csv
-2025-parte-03 despesas_es_2025_completo_parte_03.csv
-2025-parte-04 despesas_es_2025_completo_parte_04.csv
-```
-
-### Carregar uma amostra pequena
-
-Para testes, exploração ou depuração, pode-se utilizar `load_data()`:
-
-```python
-from src.pipeline.data_loader import load_data
-
-amostra = load_data(
-    years=(2024,),
-    usecols=["Ano", "Data", "Favorecido", "ValorPago"],
-    rows_per_source=500,
-)
-
-print(amostra.head())
-print(amostra.shape)
-```
-
-`load_data()` concatena os dados em memória. Por isso, deve ser usado principalmente para:
-
-- exploração;
-- testes;
-- depuração;
-- conferência visual;
-- amostras reduzidas.
-
-Para o processamento completo da base, use o pipeline em chunks.
-
-## Responsabilidade de cada módulo do pipeline
-
-```text
-data_loader.py
-→ localiza e carrega os arquivos
-
-schema.py
-→ valida a estrutura esperada
-
-cleaning.py
-→ limpa e converte tipos
-
-transformations.py
-→ cria campos derivados permitidos
-
-profiling.py
-→ mede qualidade e características dos dados
-
-writer.py
-→ grava a camada processada
-
-runner.py
-→ coordena a execução completa do pipeline
-```
-
-## Inspeção rápida da fonte
-
-Antes de processar os dados, execute:
+### 1. Verificar as fontes
 
 ```bash
 python src/scripts/inspect_source.py
 ```
 
-O script deve verificar o inventário e o schema sem carregar a base inteira em memória.
-
-Resultado esperado: identificação dos 8 arquivos, com o mesmo conjunto de colunas.
-
-## Testes automatizados
-
-Execute:
+### 2. Rodar os testes
 
 ```bash
 pytest -q
 ```
 
-Para executar apenas os testes de integração com os arquivos reais:
+No snapshot revisado desta versão:
 
-```bash
-pytest -q -m integration
+```text
+24 passed, 2 skipped
 ```
 
-Os testes devem validar, entre outros pontos:
+Os testes marcados como integração podem depender da presença dos arquivos reais.
 
-- descoberta das fontes;
-- presença das partes de 2024 e 2025;
-- consistência de schema;
-- conversão de tipos;
-- comportamento da limpeza;
-- transformações;
-- execução do pipeline.
-
-## Smoke test do pipeline
-
-Antes de processar a base completa, execute uma amostra pequena:
+### 3. Smoke test do pipeline
 
 ```bash
 python src/scripts/run_pipeline.py --limit-rows-per-source 100
 ```
 
-Com 8 arquivos, o resultado esperado é aproximadamente:
+Com 8 fontes, o esperado é processar aproximadamente 800 registros.
 
-```text
-800 registros processados
+### 4. Executar o pipeline completo
+
+CSV compactado:
+
+```bash
+python src/scripts/run_pipeline.py --format csv.gz
 ```
 
-Esse teste serve para confirmar o funcionamento do fluxo completo:
+Parquet:
 
-```text
-CSV
- ↓
-data_loader
- ↓
-schema
- ↓
-cleaning
- ↓
-transformations
- ↓
-quality / profiling
- ↓
-writer
+```bash
+python src/scripts/run_pipeline.py --format parquet
 ```
 
-## Saídas do pipeline
-
-A execução gera arquivos em:
+As saídas são gravadas em:
 
 ```text
 src/data/processed/
 src/data/reports/
 ```
 
-Os relatórios incluem:
-
-```text
-src/data/reports/manifest.json
-src/data/reports/quality_summary.csv
-src/data/reports/metrics_by_year.csv
-src/data/reports/metrics_by_month.csv
-src/data/reports/metrics_by_unit.csv
-src/data/reports/metrics_by_element.csv
-src/data/reports/metrics_by_subelement.csv
-src/data/reports/metrics_by_beneficiary.csv
-src/data/reports/metrics_by_licitacao.csv
-src/data/reports/metrics_by_process.csv
-```
-
-## Pipeline completo
-
-Somente depois que testes e smoke test estiverem funcionando corretamente, execute a base completa.
-
-### Saída CSV compactada
-
-```bash
-python src/scripts/run_pipeline.py --format csv.gz
-```
-
-### Saída Parquet
-
-```bash
-python src/scripts/run_pipeline.py --format parquet
-```
-
-Depois de gerar a camada processada, crie os relatórios usados pelo painel:
+### 5. Gerar e validar as métricas
 
 ```bash
 python src/scripts/validate_metrics.py
 ```
 
-O script calcula os totais financeiros e os agregados por despesa, favorecido, tipo de licitação e processo. O painel lê esses CSVs prontos em `src/data/reports/`; ele não carrega a base completa no navegador.
+Esse script lê a camada processada, valida as medidas financeiras e gera os relatórios usados pelo painel.
 
-## Painel Dash
-
-O Dash não lê nem trata diretamente os CSVs oficiais. O fluxo atual é:
+Principais relatórios:
 
 ```text
-src/data/*.csv
-       ↓
-   Pipeline
-       ↓
-src/data/processed/
-       ↓
-validate_metrics.py
-       ↓
-src/data/reports/*.csv
-       ↓
-    Dash
+metrics_quality.csv
+metrics_validation.json
+metrics_by_year.csv
+metrics_by_month.csv
+metrics_by_unit.csv
+metrics_by_element.csv
+metrics_by_subelement.csv
+metrics_by_beneficiary.csv
+metrics_by_licitacao.csv
+metrics_by_process.csv
+variable_catalog.csv
+payment_statistics.csv
+beneficiary_concentration.csv
+beneficiary_concentration_summary.csv
+payments_by_licitacao_positive.csv
 ```
 
-Para iniciar o painel, execute na raiz do projeto:
+## Executar o painel
 
 ```bash
 python app.py
 ```
 
-A página inicial apresenta a narrativa geral do projeto. As quatro páginas analíticas respondem às perguntas que orientam o painel:
+O `app.py` utiliza a variável de ambiente `PORT` quando disponível e, localmente, usa a porta 8050 por padrão.
 
-### Painel Principal
+## Páginas
 
-Apresenta o contexto da base, indicadores gerais, evolução dos valores, dispersão dos pagamentos e intervalos de confiança. Os filtros de ano e medida financeira atualizam o recorte e as séries temporais.
+### Painel Principal — `/`
 
-Arquivo e rota: src/pages/painel_principal.py — /
+Página executiva com contexto da base, indicadores gerais, séries temporais e estatísticas descritivas.
 
-### 1. Visão Geral
+### Visão Geral — `/visao-geral`
 
-**Pergunta:**
+Responde à evolução de `ValorEmpenho`, `ValorLiquidado`, `ValorPago` e `ValorRap` em 2024 e 2025.
 
-> Como os valores empenhados, liquidados, pagos e de restos a pagar evoluem entre 2024 e 2025?
+### Despesas — `/despesas`
 
-Arquivo e rota: src/pages/overview.py — /visao-geral
+Explora elementos e subelementos de despesa.
 
-### 2. Despesas
+### Favorecidos e Contratações — `/favorecidos`
 
-**Pergunta:**
+Explora favorecidos, concentração de pagamentos, tipos de licitação, boxplot, probabilidade empírica e intervalo de confiança para o recorte documentado.
 
-> Em quais elementos e subelementos de despesa os recursos públicos estão sendo aplicados?
+### Rastreabilidade — `/rastreabilidade`
 
-Arquivo e rota: src/pages/despesas.py — /despesas
+Relaciona os resultados aos registros, documentos e processos disponíveis na base.
 
-### 3. Favorecidos e Contratações
+## Deploy no Render
 
-**Pergunta:**
+O projeto está preparado para um **Web Service** no Render.
 
-> Para quem os recursos foram destinados e como os pagamentos se distribuem entre as modalidades de contratação?
+Build Command:
 
-Arquivo e rota: src/pages/favorecidos.py — /favorecidos
-
-### 4. Rastreabilidade
-
-**Pergunta:**
-
-> Quais registros, documentos e processos compõem os valores apresentados no painel?
-
-Arquivo e rota: src/pages/rastreabilidade.py — /rastreabilidade
-
-## Fluxo recomendado
-
-Execute nesta ordem para atualizar os dados do painel:
-
-```text
-1. Instalar dependências
-       ↓
-2. python src/scripts/inspect_source.py
-       ↓
-3. python src/scripts/run_pipeline.py
-       ↓
-4. python src/scripts/validate_metrics.py
-       ↓
-5. python app.py
+```bash
+pip install -r requirements.txt
 ```
 
-## Observação sobre as métricas
+Start Command recomendado:
 
-Os gráficos apresentam agregações dos valores como constam nos registros. A documentação do contrato ainda recomenda validar a semântica e o nível seguro de soma dessas medidas antes de tratá-las como KPIs definitivos.
-
-## Documentação complementar
-
-Consulte também:
-
-```text
-docs/DATA_CONTRACT.md
-docs/HANDOFF.md
-docs/INITIAL_DATA_AUDIT.md
+```bash
+gunicorn app:server --bind 0.0.0.0:$PORT --workers 1 --timeout 120
 ```
 
-O contrato de dados documenta quais campos são preservados, quais transformações são permitidas e quais decisões analíticas ainda precisam de validação.
+Também é possível iniciar a POC com:
 
-A auditoria inicial registra os principais achados encontrados nos arquivos reais antes da construção do painel.
+```bash
+python app.py
+```
+
+Como o painel consome arquivos de `src/data/reports/`, esses relatórios precisam estar disponíveis no ambiente de deploy. Se o pipeline não for executado durante o build, os relatórios necessários devem ser versionados no repositório ou fornecidos por outra fonte persistente.
+
+## Regras de interpretação
+
+- Valores negativos e zeros não são removidos automaticamente.
+- `ValorRap` não deve ser somado ou comparado aos demais campos como se todos representassem a mesma etapa de uma única despesa sem considerar sua definição.
+- Razões como `ValorPago / ValorEmpenho` não devem ser chamadas automaticamente de taxa de execução.
+- Resultados de boxplot e concentração são evidências descritivas e não prova de fraude ou irregularidade.
+- Estatísticas baseadas em `ValorPago > 0` devem ser identificadas explicitamente como tal.
+
+Consulte `docs/METRICS.md` para definições, escopos e limitações.
+
+## Documentação
+
+- `docs/DATA_CONTRACT.md`: contrato da camada processada.
+- `docs/INITIAL_DATA_AUDIT.md`: achados de qualidade da fonte.
+- `docs/METRICS.md`: definições e status das métricas.
+- `docs/HANDOFF.md`: estado atual, reprodução e continuidade do projeto.
