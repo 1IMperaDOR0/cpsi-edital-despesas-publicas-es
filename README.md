@@ -303,3 +303,8 @@ Consulte `docs/METRICS.md` para definições, escopos e limitações.
 - `docs/INITIAL_DATA_AUDIT.md`: achados de qualidade da fonte.
 - `docs/METRICS.md`: definições e status das métricas.
 - `docs/HANDOFF.md`: estado atual, reprodução e continuidade do projeto.
+
+## Solução
+
+- Solution URL: [GitHub Repository](https://github.com/1IMperaDOR0/cpsi-edital-despesas-publicas-es)
+- Live Site URL: [CPSI Solution](https://cpsi-edital-despesas-publicas-es.onrender.com/despesas)
