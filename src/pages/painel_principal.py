@@ -389,73 +389,53 @@ layout = html.Div(
     Output("main-filter-summary", "children"),
     Output("main-annual-chart", "figure"),
     Output("main-monthly-chart", "figure"),
-    Output("main-boxplot", "figure"),
-    Output("main-ci-chart", "figure"),
-    Output("main-stats-table", "children"),
-    Output("main-story-insights", "children"),
     Input("main-dashboard-years", "value"),
     Input("main-dashboard-measure", "value"),
 )
 def update_main_dashboard(selected_years, selected_measure):
     requested = {str(year) for year in (selected_years or [])}
     years = [year for year in DASHBOARD_YEARS if year in requested]
+
     if not years:
         years = list(DASHBOARD_YEARS)
-    measure = selected_measure if selected_measure in FINANCIAL_LABELS else "ValorPago"
+
+    measure = (
+        selected_measure
+        if selected_measure in FINANCIAL_LABELS
+        else "ValorPago"
+    )
+
     measure_label = FINANCIAL_LABELS[measure]
 
     annual = yearly_totals.loc[
         yearly_totals["Ano"].astype(int).astype(str).isin(years)
     ].copy()
+
     monthly = monthly_totals.loc[
         monthly_totals["AnoMes"].astype(str).str[:4].isin(years)
     ].copy()
+
     statistics = filtered_statistics(years)
     summary = selected_statistics_summary(years)
 
     records_count = annual["Registros"].sum()
     measure_total = annual[measure].sum()
+
     positive_count = statistics["PagamentosPositivos"].sum()
-    median = format_currency(summary["Mediana"]) if summary is not None else "Por ano"
-    standard_deviation = (
-        format_currency(summary["DesvioPadrao"]) if summary is not None else "Por ano"
+
+    median = (
+        format_currency(summary["Mediana"])
+        if summary is not None
+        else "Por ano"
     )
+
+    standard_deviation = (
+        format_currency(summary["DesvioPadrao"])
+        if summary is not None
+        else "Por ano"
+    )
+
     period = " e ".join(years)
-    highest_month = monthly.sort_values(measure, ascending=False).iloc[0]
-    insights = [
-        html.Li(
-            f"No recorte {period}, há {format_integer(records_count)} registros e "
-            f"a soma registrada de {measure_label} é {format_currency_compact(measure_total)}."
-        ),
-        html.Li(
-            f"O maior total mensal de {measure_label} ocorreu em {highest_month['AnoMes']}: "
-            f"{format_currency_compact(highest_month[measure])}."
-        ),
-    ]
-    if summary is not None:
-        mean_value = float(summary["Media"])
-        median_value = float(summary["Mediana"])
-        distribution_text = (
-            f"Nos pagamentos positivos, a média ({format_currency(mean_value)}) "
-            f"fica acima da mediana ({format_currency(median_value)}), sinal de "
-            "assimetria à direita e influência de pagamentos altos."
-            if mean_value > median_value
-            else (
-                f"Nos pagamentos positivos, a média ({format_currency(mean_value)}) "
-                f"e a mediana ({format_currency(median_value)}) resumem o centro "
-                "da distribuição por perspectivas diferentes."
-            )
-        )
-        insights.append(html.Li(distribution_text))
-    if len(years) > 1:
-        largest_year = annual.sort_values(measure, ascending=False).iloc[0]
-        insights.append(
-            html.Li(
-                f"Entre os anos filtrados, {int(largest_year['Ano'])} tem a maior "
-                f"soma registrada de {measure_label}: "
-                f"{format_currency_compact(largest_year[measure])}."
-            )
-        )
 
     return (
         years,
@@ -466,10 +446,12 @@ def update_main_dashboard(selected_years, selected_measure):
         median,
         standard_deviation,
         f"{period} · {measure_label}",
-        annual_financial_comparison_chart(annual, metric=measure),
-        financial_evolution_chart(monthly, metric=measure),
-        payment_boxplot_chart(statistics),
-        payment_mean_ci_chart(statistics),
-        statistics_table(statistics),
-        insights,
+        annual_financial_comparison_chart(
+            annual,
+            metric=measure,
+        ),
+        financial_evolution_chart(
+            monthly,
+            metric=measure,
+        ),
     )
